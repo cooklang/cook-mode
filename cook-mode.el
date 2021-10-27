@@ -22,22 +22,26 @@
 
 (defface cook-source-author-keyword-face
   '((t :foreground "#a0e"))
-  )
+  "Face for author keyword")
 (defface cook-source-author-face
   '((t :foreground "#ae0"))
-  )
+  "Face for author")
+
 (defface cook-servings-keyword-face
   '((t :foreground "#ee2"))
-  )
+  "Face for servings keyword")
+
 (defface cook-servings-face
   '((t :foreground "#aae"))
-  )
+  "Face for servings")
+
 (defface cook-time-keyword-face
   '((t :foreground "#a00"))
-  )
+  "Face for time required keyword")
+
 (defface cook-time-face
   '((t :foreground "#de0"))
-  )
+  "Face for time required")
 
 (define-generic-mode
     'cook-mode ;; mode name
