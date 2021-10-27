@@ -21,26 +21,26 @@
 (require 'generic-x)
 
 (defface cook-source-author-keyword-face
-  '((t :foreground "#a0e"))
+  '((t :inherit font-lock-keyword-face))
   "Face for author keyword")
 (defface cook-source-author-face
-  '((t :foreground "#ae0"))
+  '((t :inherit font-lock-string-face))
   "Face for author")
 
 (defface cook-servings-keyword-face
-  '((t :foreground "#ee2"))
+  '((t :inherit font-lock-keyword-face))
   "Face for servings keyword")
 
 (defface cook-servings-face
-  '((t :foreground "#aae"))
+  '((t :inherit font-lock-string-face))
   "Face for servings")
 
 (defface cook-time-keyword-face
-  '((t :foreground "#a00"))
+  '((t :inherit font-lock-keyword-face))
   "Face for time required keyword")
 
 (defface cook-time-face
-  '((t :foreground "#de0"))
+  '((t :inherit font-lock-string-face))
   "Face for time required")
 
 (define-generic-mode
