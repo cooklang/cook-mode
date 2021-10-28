@@ -43,6 +43,34 @@
   '((t :inherit font-lock-string-face))
   "Face for time required")
 
+
+(defface cook-ingredient-char-face
+  '((t :inherit font-lock-string-face))
+  "Face for ingredient char")
+
+(defface cook-ingredient-face
+  '((t :inherit font-lock-keyword-face))
+  "Face for ingredient name")
+
+(defface cook-ingredient-quantity-face
+  '((t :inherit font-lock-string-face))
+  "Face for ingredient quantity")
+
+(defface cook-cookware-char-face
+  '((t :inherit font-lock-string-face))
+  "Face for cookware char")
+
+(defface cook-cookware-face
+  '((t :inherit font-lock-keyword-face))
+  "Face for cookware name")
+
+(defface cook-cookware-quantity-face
+  '((t :inherit font-lock-string-face))
+  "Face for cookware quantity")
+
+
+
+
 (define-generic-mode
     'cook-mode ;; mode name
   '("//") ;; comment
@@ -73,9 +101,14 @@
     ("\\(>>\\) \\(servings\\)\\(:\\)\\(.*$\\)" 4 'cook-servings-face)
 
     ("~{[^}]*}" . 'font-lock-builtin-face)
-    ("@[^\s{]*\\([^{]*{[^}]*}\\|\s\\)" . 'font-lock-builtin-face)
-    ("#[^\s{]*\\([^{]*{[^}]*}\\|\s\\)" . 'font-lock-builtin-face)
 
+    ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 1 'cook-cookware-char-face)
+    ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-cookware-face)
+    ("\\(?1:#\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?:[A-z]*\\)\\)" 3 'cook-cookware-quantity-face)
+
+    ("\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 1 'cook-ingredient-char-face)
+    ("\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-ingredient-face)
+    ("\\(?:@\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(:[A-z]*\\)\\)" 3 'cook-ingredient-quantity-face)
     ) ;; fonts
   '("\\.cook$")
   nil
