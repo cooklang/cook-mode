@@ -43,7 +43,6 @@
   '((t :inherit font-lock-string-face))
   "Face for time required")
 
-
 (defface cook-ingredient-char-face
   '((t :inherit font-lock-string-face))
   "Face for ingredient char")
@@ -68,8 +67,13 @@
   '((t :inherit font-lock-string-face))
   "Face for cookware quantity")
 
+(defface cook-timer-char-face
+  '((t :inherit font-lock-string-face))
+  "Face for timer char")
 
-
+(defface cook-timer-face
+  '((t :inherit font-lock-string-face))
+  "Face for timer")
 
 (define-generic-mode
     'cook-mode ;; mode name
@@ -89,7 +93,7 @@
     ("\\(>>\\) \\(time required\\)\\(:\\)\\(.*$\\)" 4 'cook-time-face)
 
     ;; course
-        ("\\(>>\\) \\(course\\)\\(:\\)\\(.*$\\)" 1 'font-lock-comment-face)
+    ("\\(>>\\) \\(course\\)\\(:\\)\\(.*$\\)" 1 'font-lock-comment-face)
     ("\\(>>\\) \\(course\\)\\(:\\)\\(.*$\\)" 3 'font-lock-comment-face)
     ("\\(>>\\) \\(course\\)\\(:\\)\\(.*$\\)" 2 'cook-course-keyword-face)
     ("\\(>>\\) \\(course\\)\\(:\\)\\(.*$\\)" 4 'cook-course-face)
@@ -100,7 +104,8 @@
     ("\\(>>\\) \\(servings\\)\\(:\\)\\(.*$\\)" 2 'cook-servings-keyword-face)
     ("\\(>>\\) \\(servings\\)\\(:\\)\\(.*$\\)" 4 'cook-servings-face)
 
-    ("~{[^}]*}" . 'font-lock-builtin-face)
+    ("\\(?1:~\\){\\(?2:[^}]*\\)}" 1 'cook-timer-char-face)
+    ("\\(?1:~\\){\\(?2:[^}]*\\)}" 2 'cook-timer-face)
 
     ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 1 'cook-cookware-char-face)
     ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-cookware-face)
