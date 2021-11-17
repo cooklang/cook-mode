@@ -75,6 +75,7 @@
   '((t :inherit font-lock-string-face))
   "Face for timer")
 
+;;;###autoload
 (define-generic-mode
     'cook-mode ;; mode name
   '("//") ;; comment
@@ -119,5 +120,6 @@
   nil
   "A mode for cook recipes" ;; description
     )
+
 (provide 'cook-mode)
 ;;; cook-mode.el ends here
