@@ -1,4 +1,4 @@
-;;; cook-mode.el Emacs mode for cooklang -*- lexical-binding: t; -*-
+;;; cook-mode.el --- Emacs mode for cooklang -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2021 Rafael Accácio Nogueira
 ;;
