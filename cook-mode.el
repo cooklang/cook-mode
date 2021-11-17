@@ -20,6 +20,9 @@
 ;;; Code:
 (require 'generic-x)
 
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.cook" . cook-mode))
+
 (defface cook-source-author-keyword-face
   '((t :inherit font-lock-keyword-face))
   "Face for author keyword")
