@@ -81,7 +81,7 @@
 ;;;###autoload
 (define-generic-mode
     'cook-mode ;; mode name
-  '("//") ;; comment
+  '("--") ;; comment
   '() ;; keywords
   '(
     ;; source | author
