@@ -72,7 +72,6 @@
     ("\\(?:@\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(:[A-z]*\\)\\)" 3 'cook-ingredient-quantity-face)
     ))
 
-
 (defface cook-source-author-keyword-face
   '((t :inherit font-lock-keyword-face))
   "Face for author keyword")
@@ -129,21 +128,14 @@
   "Face for timer")
 
 ;;;###autoload
-(define-derived-mode
-    cook-mode ;; mode name
-    text-mode
-    "cook"
-  '("--") ;; comment
-  '() ;; keywords
-   ;; fonts
-  '("\\.cook$")
+(define-derived-mode cook-mode text-mode "cook"
+  "A mode for cooklang recipes"
   (set-syntax-table cook-mode-syntax-table)
   (setq font-lock-defaults '(cook-mode-font-lock))
   (make-local-variable 'comment-start)
   (make-local-variable 'comment-end)
   (setq comment-start "[-"
         comment-end "-]")
-  "A mode for cook recipes" ;; description
     )
 
 (provide 'cook-mode)
