@@ -139,8 +139,10 @@
   '("\\.cook$")
   (set-syntax-table cook-mode-syntax-table)
   (setq font-lock-defaults '(cook-mode-font-lock))
-    (setq comment-start "[-"
-	comment-end "-]")
+  (make-local-variable 'comment-start)
+  (make-local-variable 'comment-end)
+  (setq comment-start "[-"
+        comment-end "-]")
   "A mode for cook recipes" ;; description
     )
 
