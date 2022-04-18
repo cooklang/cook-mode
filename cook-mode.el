@@ -39,9 +39,9 @@
 (defvar cook-mode-syntax-table nil "Syntax table used while in `cook-mode'.")
 (setq cook-mode-syntax-table
   (let ((st (make-syntax-table)))
-     (modify-syntax-entry ?\[ ". 124b" st)
-     (modify-syntax-entry ?\] ". 124b" st)
-     (modify-syntax-entry ?- ". 1b23" st)
+     (modify-syntax-entry ?\[ ". 1b" st)
+     (modify-syntax-entry ?\] ". 4b" st)
+     (modify-syntax-entry ?- ". 123b" st)
      (modify-syntax-entry ?\n "> b" st)
     st))
 
