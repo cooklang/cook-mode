@@ -164,6 +164,37 @@ of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
         (add-to-list 'ingredients (match-string-no-properties 0) t)))
     ingredients))
 
+(defun cook-parse-ingredient (str)
+  "Parse an ingredient string into (INGREDIENT QUANTITY UNITS)
+Example: \"@olive oil{2%tbsp}\" => (\"olive oil\" 2 \"tbsp\")"
+  nil
+  )
+
+
+(defun cook-match () ""
+       (interactive)
+       (re-search-forward cook-ingredient-re (point-max) t))
+
+(defun cook-show-ingredients ()
+  "Show ingredients list"
+  (interactive)
+  ;; Gather ingredients into a list => (("eggs" 5) ("sugar" 20 "mg"))
+  ;; Format ingredients
+  ;; Display
+    (message "hello!\n\nworld!"))
+
+; This would be a cool function
+;(defun cook-insert-ingredients-list ())
+
+;;; Keymap ====================================================================
+
+(defvar cook-mode-map
+  (let ((map (make-keymap)))
+    (define-key map (kbd "C-c i") 'cook-show-ingredients)
+    map)
+  "Keymap for Cook major mode.")
+
+
 ;;;###autoload
 (define-derived-mode cook-mode text-mode "cook"
   "A mode for cooklang recipes"
