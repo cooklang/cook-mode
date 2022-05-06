@@ -153,6 +153,17 @@ Group 3: Matches the quantity if available.
   '((t :inherit font-lock-string-face))
   "Face for timer")
 
+
+(defun cook-ingredients-list ()
+  "Return the ingredients list for the current buffer. Each element is
+of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
+  (let ((ingredients '()))
+    (save-excursion
+      (while (and (< (point) (point-max))
+                  (re-search-forward cook-ingredient-re (point-max) t))
+        (add-to-list 'ingredients (match-string-no-properties 0) t)))
+    ingredients))
+
 ;;;###autoload
 (define-derived-mode cook-mode text-mode "cook"
   "A mode for cooklang recipes"
