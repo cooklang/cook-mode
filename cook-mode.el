@@ -45,9 +45,23 @@
      (modify-syntax-entry ?\n "> b" st)
     st))
 
+;;; Regular Expressions ========================================================
+
+;; Ingredient extraction
+(defconst cook-ingredient-re
+  "\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)"
+  "Regular expression for matching an ingredient.
+
+Group 1: Matches @ marker.
+Group 2: Matches the ingredient.
+Group 3: Matches the quantity if available.
+")
+
+;;; Syntax Highlighting ========================================================
+
 (defvar cook-mode-font-lock nil "Font lock for `cook-mode'.")
 
-(setq cook-mode-font-lock'(
+(setq cook-mode-font-lock `(
     ;; source | author
     ("\\(>>\\) \\(source\\|author\\)\\(:\\)\\(.*$\\)" 1 'font-lock-comment-face)
     ("\\(>>\\) \\(source\\|author\\)\\(:\\)\\(.*$\\)" 3 'font-lock-comment-face)
@@ -79,9 +93,9 @@
     ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-cookware-face)
     ("\\(?1:#\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?:[A-z]*\\)\\)" 3 'cook-cookware-quantity-face)
 
-    ("\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 1 'cook-ingredient-char-face)
-    ("\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-ingredient-face)
-    ("\\(?:@\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(:[A-z]*\\)\\)" 3 'cook-ingredient-quantity-face)
+    (,cook-ingredient-re 1 'cook-ingredient-char-face)
+    (,cook-ingredient-re 2 'cook-ingredient-face)
+    (,cook-ingredient-re 3 'cook-ingredient-quantity-face)
     ))
 
 (defface cook-source-author-keyword-face
