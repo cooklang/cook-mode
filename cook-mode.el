@@ -154,34 +154,50 @@ Group 3: Matches the quantity if available.
   "Face for timer")
 
 
+;;; Ingredient Parsing ===================================================================
+
+(defun cook-parse-ingredient (ingredient-str)
+  "Parse an ingredient string into (INGREDIENT QUANTITY UNITS)
+Example: \"@olive oil{2%tbsp}\" => (\"olive oil\" 2 \"tbsp\")"
+  (string-match cook-ingredient-re ingredient-str)
+  (let* ((m (match-data))
+         (ingredient (substring ingredient-str (nth 4 m) (nth 5 m)))
+         (quantity-str (substring ingredient-str (nth 6 m) (nth 7 m))))
+    (if (seq-contains-p quantity-str ?%)
+        (let* ((q-split (split-string quantity-str "%"))
+               ; TODO - need to parse fractions.
+               (quantity (string-to-number (first q-split)))
+               (units (second q-split)))
+          (list ingredient quantity units))
+      (list ingredient (string-to-number quantity-str) nil))))
+
 (defun cook-ingredients-list ()
   "Return the ingredients list for the current buffer. Each element is
 of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
+  (interactive)
   (let ((ingredients '()))
     (save-excursion
+      (goto-char (point-min))
       (while (and (< (point) (point-max))
                   (re-search-forward cook-ingredient-re (point-max) t))
         (add-to-list 'ingredients (match-string-no-properties 0) t)))
-    ingredients))
-
-(defun cook-parse-ingredient (str)
-  "Parse an ingredient string into (INGREDIENT QUANTITY UNITS)
-Example: \"@olive oil{2%tbsp}\" => (\"olive oil\" 2 \"tbsp\")"
-  nil
-  )
-
-
-(defun cook-match () ""
-       (interactive)
-       (re-search-forward cook-ingredient-re (point-max) t))
+    (mapcar #'cook-parse-ingredient ingredients)))
 
 (defun cook-show-ingredients ()
   "Show ingredients list"
   (interactive)
-  ;; Gather ingredients into a list => (("eggs" 5) ("sugar" 20 "mg"))
+  (let* ((ingredients (cook-ingredients-list))
+         (ingredients-table
+          (apply #'concat
+                 (mapcar (lambda (i)
+                           (if (third i)
+                               (format "%s\t%s\t%s\n" (first i) (second i) (third i))
+                             (format "%s\t%s\n" (first i) (second i))))
+                           ingredients))))
+    (message ingredients-table)))
+
   ;; Format ingredients
   ;; Display
-    (message "hello!\n\nworld!"))
 
 ; This would be a cool function
 ;(defun cook-insert-ingredients-list ())
@@ -189,7 +205,7 @@ Example: \"@olive oil{2%tbsp}\" => (\"olive oil\" 2 \"tbsp\")"
 ;;; Keymap ====================================================================
 
 (defvar cook-mode-map
-  (let ((map (make-keymap)))
+  (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c i") 'cook-show-ingredients)
     map)
   "Keymap for Cook major mode.")
