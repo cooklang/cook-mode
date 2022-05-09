@@ -165,11 +165,10 @@ Example: \"@olive oil{2%tbsp}\" => (\"olive oil\" 2 \"tbsp\")"
          (quantity-str (substring ingredient-str (nth 6 m) (nth 7 m))))
     (if (seq-contains-p quantity-str ?%)
         (let* ((q-split (split-string quantity-str "%"))
-               ; TODO - need to parse fractions.
-               (quantity (string-to-number (first q-split)))
+               (quantity (first q-split))
                (units (second q-split)))
           (list ingredient quantity units))
-      (list ingredient (string-to-number quantity-str) nil))))
+      (list ingredient quantity-str nil))))
 
 (defun cook-ingredients-list ()
   "Return the ingredients list for the current buffer. Each element is
@@ -195,12 +194,6 @@ of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
                              (format "%s\t%s\n" (first i) (second i))))
                            ingredients))))
     (message ingredients-table)))
-
-  ;; Format ingredients
-  ;; Display
-
-; This would be a cool function
-;(defun cook-insert-ingredients-list ())
 
 ;;; Keymap ====================================================================
 
