@@ -45,9 +45,23 @@
      (modify-syntax-entry ?\n "> b" st)
     st))
 
+;;; Regular Expressions ========================================================
+
+;; Ingredient extraction
+(defconst cook-ingredient-re
+  "\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)"
+  "Regular expression for matching an ingredient.
+
+Group 1: Matches @ marker.
+Group 2: Matches the ingredient.
+Group 3: Matches the quantity if available.
+")
+
+;;; Syntax Highlighting ========================================================
+
 (defvar cook-mode-font-lock nil "Font lock for `cook-mode'.")
 
-(setq cook-mode-font-lock'(
+(setq cook-mode-font-lock `(
     ;; source | author
     ("\\(>>\\) \\(source\\|author\\)\\(:\\)\\(.*$\\)" 1 'font-lock-comment-face)
     ("\\(>>\\) \\(source\\|author\\)\\(:\\)\\(.*$\\)" 3 'font-lock-comment-face)
@@ -79,9 +93,9 @@
     ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-cookware-face)
     ("\\(?1:#\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?:[A-z]*\\)\\)" 3 'cook-cookware-quantity-face)
 
-    ("\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 1 'cook-ingredient-char-face)
-    ("\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-ingredient-face)
-    ("\\(?:@\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(:[A-z]*\\)\\)" 3 'cook-ingredient-quantity-face)
+    (,cook-ingredient-re 1 'cook-ingredient-char-face)
+    (,cook-ingredient-re 2 'cook-ingredient-face)
+    (,cook-ingredient-re 3 'cook-ingredient-quantity-face)
     ))
 
 (defface cook-source-author-keyword-face
@@ -138,6 +152,57 @@
 (defface cook-timer-face
   '((t :inherit font-lock-string-face))
   "Face for timer")
+
+
+;;; Ingredient Parsing ===================================================================
+
+(defun cook-parse-ingredient (ingredient-str)
+  "Parse an ingredient string into (INGREDIENT QUANTITY UNITS)
+Example: \"@olive oil{2%tbsp}\" => (\"olive oil\" 2 \"tbsp\")"
+  (string-match cook-ingredient-re ingredient-str)
+  (let* ((m (match-data))
+         (ingredient (substring ingredient-str (nth 4 m) (nth 5 m)))
+         (quantity-str (substring ingredient-str (nth 6 m) (nth 7 m))))
+    (if (seq-contains-p quantity-str ?%)
+        (let* ((q-split (split-string quantity-str "%"))
+               (quantity (first q-split))
+               (units (second q-split)))
+          (list ingredient quantity units))
+      (list ingredient quantity-str nil))))
+
+(defun cook-ingredients-list ()
+  "Return the ingredients list for the current buffer. Each element is
+of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
+  (interactive)
+  (let ((ingredients '()))
+    (save-excursion
+      (goto-char (point-min))
+      (while (and (< (point) (point-max))
+                  (re-search-forward cook-ingredient-re (point-max) t))
+        (add-to-list 'ingredients (match-string-no-properties 0) t)))
+    (mapcar #'cook-parse-ingredient ingredients)))
+
+(defun cook-show-ingredients ()
+  "Show ingredients list"
+  (interactive)
+  (let* ((ingredients (cook-ingredients-list))
+         (ingredients-table
+          (apply #'concat
+                 (mapcar (lambda (i)
+                           (if (third i)
+                               (format "%s\t%s\t%s\n" (first i) (second i) (third i))
+                             (format "%s\t%s\n" (first i) (second i))))
+                           ingredients))))
+    (message ingredients-table)))
+
+;;; Keymap ====================================================================
+
+(defvar cook-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c i") 'cook-show-ingredients)
+    map)
+  "Keymap for Cook major mode.")
+
 
 ;;;###autoload
 (define-derived-mode cook-mode text-mode "cook"
