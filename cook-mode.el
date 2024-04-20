@@ -121,6 +121,14 @@ Group 3: Matches the quantity if available.
   '((t :inherit font-lock-string-face))
   "Face for time required")
 
+(defface cook-course-keyword-face
+  '((t :inherit font-lock-keyword-face))
+  "Face for course keyword")
+
+(defface cook-course-face
+  '((t :inherit font-lock-string-face))
+  "Face for course")
+
 (defface cook-ingredient-char-face
   '((t :inherit font-lock-string-face))
   "Face for ingredient char")
