@@ -165,8 +165,8 @@ Example: \"@olive oil{2%tbsp}\" => (\"olive oil\" 2 \"tbsp\")"
          (quantity-str (substring ingredient-str (nth 6 m) (nth 7 m))))
     (if (seq-contains-p quantity-str ?%)
         (let* ((q-split (split-string quantity-str "%"))
-               (quantity (first q-split))
-               (units (second q-split)))
+               (quantity (nth 0 q-split))
+               (units (nth 1 q-split)))
           (list ingredient quantity units))
       (list ingredient quantity-str nil))))
 
@@ -189,9 +189,9 @@ of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
          (ingredients-table
           (apply #'concat
                  (mapcar (lambda (i)
-                           (if (third i)
-                               (format "%s\t%s\t%s\n" (first i) (second i) (third i))
-                             (format "%s\t%s\n" (first i) (second i))))
+                           (if (nth 2 i)
+                               (format "%s\t%s\t%s\n" (nth 0 i) (nth 1 i) (nth 2 i))
+                             (format "%s\t%s\n" (nth 0 i) (nth 1 i))))
                            ingredients))))
     (message ingredients-table)))
 
