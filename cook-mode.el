@@ -49,7 +49,7 @@
 
 ;; Ingredient extraction
 (defconst cook-ingredient-re
-  "\\(?1:@\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)"
+  "\\(?1:@\\)\\(?:\\(?2:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[:alpha:]*\\)\\)"
   "Regular expression for matching an ingredient.
 
 Group 1: Matches @ marker.
@@ -89,9 +89,9 @@ Group 3: Matches the quantity if available.
     ("\\(?1:~\\){\\(?2:[^}]*\\)}" 1 'cook-timer-char-face)
     ("\\(?1:~\\){\\(?2:[^}]*\\)}" 2 'cook-timer-face)
 
-    ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 1 'cook-cookware-char-face)
-    ("\\(?1:#\\)\\(?:\\(?2:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[A-z]*\\)\\)" 2 'cook-cookware-face)
-    ("\\(?1:#\\)\\(?:\\(?:[A-z\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?:[A-z]*\\)\\)" 3 'cook-cookware-quantity-face)
+    ("\\(?1:#\\)\\(?:\\(?2:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[:alpha:]*\\)\\)" 1 'cook-cookware-char-face)
+    ("\\(?1:#\\)\\(?:\\(?2:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[:alpha:]*\\)\\)" 2 'cook-cookware-face)
+    ("\\(?1:#\\)\\(?:\\(?:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?:[:alpha:]*\\)\\)" 3 'cook-cookware-quantity-face)
 
     (,cook-ingredient-re 1 'cook-ingredient-char-face)
     (,cook-ingredient-re 2 'cook-ingredient-face)
