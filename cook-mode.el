@@ -49,7 +49,7 @@
 
 ;; Ingredient extraction
 (defconst cook-ingredient-re
-  "\\(?1:@\\)\\(?:\\(?2:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[[:alpha:]]*\\)\\)"
+  "\\(?1:@\\)\\(?:\\(?2:[[:alpha:]\n\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[[:alpha:]\n]*\\)\\)"
   "Regular expression for matching an ingredient.
 
 Group 1: Matches @ marker.
