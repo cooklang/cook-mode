@@ -1,0 +1,185 @@
+Code:
+  (lambda ()
+    (require 'cook-ts-mode)
+    (cook-ts-mode)
+    (customize-set-variable 'treesit-font-lock-level 4)
+    (let ((face (symbol-name (face-at-point))))
+      (erase-buffer)
+      (insert face)))
+Point-Char: |
+
+Name: line-comment
+No-After-Newline: t
+=-=
+-- comm|ent
+=-=
+font-lock-comment-face
+=-=-=
+
+Name: block-comment
+No-After-Newline: t
+=-=
+[- block com|ment -]
+=-=
+font-lock-comment-face
+=-=-=
+
+Name: metadata-key
+No-After-Newline: t
+=-=
+>> serv|ings: 20
+=-=
+font-lock-keyword-face
+=-=-=
+
+Name: metadata-value
+No-After-Newline: t
+=-=
+>> servings: 2|0
+=-=
+font-lock-string-face
+=-=-=
+
+Name: section
+No-After-Newline: t
+=-=
+= Ingredi|ents =
+=-=
+font-lock-type-face
+=-=-=
+
+Name: ingredient-name
+No-After-Newline: t
+=-=
+@flou|r{2%cups}
+=-=
+font-lock-constant-face
+=-=-=
+
+Name: ingredient-sigil
+No-After-Newline: t
+=-=
+|@flour{2%cups}
+=-=
+font-lock-punctuation-face
+=-=-=
+
+Name: cookware-name
+No-After-Newline: t
+=-=
+#mixing bo|wl{}
+=-=
+font-lock-constant-face
+=-=-=
+
+Name: cookware-sigil
+No-After-Newline: t
+=-=
+|#mixing bowl{}
+=-=
+font-lock-punctuation-face
+=-=-=
+
+Name: timer-name
+No-After-Newline: t
+=-=
+~res|t{30%minutes}
+=-=
+font-lock-constant-face
+=-=-=
+
+Name: timer-sigil
+No-After-Newline: t
+=-=
+|~rest{30%minutes}
+=-=
+font-lock-punctuation-face
+=-=-=
+
+Name: quantity-value
+No-After-Newline: t
+=-=
+@flour{3|0%cups}
+=-=
+font-lock-number-face
+=-=-=
+
+Name: quantity-unit
+No-After-Newline: t
+=-=
+@flour{30%cu|ps}
+=-=
+font-lock-type-face
+=-=-=
+
+Name: preparation
+No-After-Newline: t
+=-=
+@butter{1%tbsp}(mel|ted)
+=-=
+font-lock-string-face
+=-=-=
+
+Name: recipe-note-text
+No-After-Newline: t
+=-=
+> Don't burn the ro|ux!
+=-=
+font-lock-string-face
+=-=-=
+
+Name: recipe-note-sigil
+No-After-Newline: t
+=-=
+|> Don't burn the roux!
+=-=
+font-lock-punctuation-face
+=-=-=
+
+Name: percent-separator
+No-After-Newline: t
+=-=
+@flour{2|%cups}
+=-=
+font-lock-operator-face
+=-=-=
+
+Name: open-brace-bracket
+No-After-Newline: t
+=-=
+@flour|{2%cups}
+=-=
+font-lock-bracket-face
+=-=-=
+
+Name: anonymous-timer-sigil
+No-After-Newline: t
+=-=
+|~{10%minutes}
+=-=
+font-lock-punctuation-face
+=-=-=
+
+Name: horizontal-rule
+No-After-Newline: t
+=-=
+|---
+=-=
+font-lock-delimiter-face
+=-=-=
+
+Name: recipe-reference
+No-After-Newline: t
+=-=
+@./sauces/|Hollandaise
+=-=
+font-lock-string-face
+=-=-=
+
+Name: cookware-quantity-value
+No-After-Newline: t
+=-=
+#pan{|2}
+=-=
+font-lock-number-face
+=-=-=
