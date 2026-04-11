@@ -1,0 +1,29 @@
+Code:
+  (lambda ()
+    (require 'cook-ts-mode)
+    (cook-ts-mode)
+    (customize-set-variable 'treesit-font-lock-level 4)
+    (let ((face (symbol-name (face-at-point))))
+      (erase-buffer)
+      (insert face)))
+Point-Char: |
+
+Name: yaml-key
+No-After-Newline: t
+=-=
+---
+serv|ings: 4
+---
+=-=
+font-lock-keyword-face
+=-=-=
+
+Name: yaml-value
+No-After-Newline: t
+=-=
+---
+servings: |4
+---
+=-=
+font-lock-string-face
+=-=-=
