@@ -1,17 +1,31 @@
 #!/bin/bash
 set -euo pipefail
 
-SCRATCH="$HOME/.dotfiles/emacs-profiles/scratch"
-REPO="$SCRATCH/straight/repos/cook-mode"
-GRAMMAR_DIR="$HOME/Documents/Dev/Tools/tree-sitter-cooklang"
-DYLIB_DST="$SCRATCH/tree-sitter/libtree-sitter-cooklang.dylib"
+# Required environment variables:
+#   COOKLANG_GRAMMAR_REPO  path to the tree-sitter-cooklang source repository
+#   TREESIT_LOAD_PATH      directory where Emacs loads tree-sitter grammars
+
+if [ -z "${COOKLANG_GRAMMAR_REPO:-}" ]; then
+  echo "error: COOKLANG_GRAMMAR_REPO is not set" >&2
+  echo "  Set it to the path of your tree-sitter-cooklang source repository." >&2
+  exit 1
+fi
+
+if [ -z "${TREESIT_LOAD_PATH:-}" ]; then
+  echo "error: TREESIT_LOAD_PATH is not set" >&2
+  echo "  Set it to the directory where Emacs loads tree-sitter grammars." >&2
+  exit 1
+fi
+
+REPO=$(cd "$(dirname "$0")" && pwd)
+DYLIB_DST="$TREESIT_LOAD_PATH/libtree-sitter-cooklang.dylib"
 
 # Build and install the cooklang grammar from source.
 # Emacs cannot reload dylibs, so this must run before Emacs starts.
-(cd "$GRAMMAR_DIR" && tree-sitter generate && tree-sitter build)
-cp "$GRAMMAR_DIR/cooklang.dylib" "$DYLIB_DST"
+(cd "$COOKLANG_GRAMMAR_REPO" && tree-sitter generate && tree-sitter build)
+cp "$COOKLANG_GRAMMAR_REPO/cooklang.dylib" "$DYLIB_DST"
 
-SETUP="(setq treesit-extra-load-path (list \"$SCRATCH/tree-sitter\"))"
+SETUP="(setq treesit-extra-load-path (list \"$TREESIT_LOAD_PATH\"))"
 
 case "${1:-}" in
   --batch)
@@ -26,7 +40,7 @@ case "${1:-}" in
     ;;
   --grammar-test)
     # Run tree-sitter corpus tests for the grammar itself.
-    (cd "$GRAMMAR_DIR" && tree-sitter test)
+    (cd "$COOKLANG_GRAMMAR_REPO" && tree-sitter test)
     ;;
   *)
     # Interactive mode: open the example file for manual inspection.

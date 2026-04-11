@@ -1,8 +1,9 @@
 ;;; cook-ts-mode.el --- Tree-sitter major mode for cooklang -*- lexical-binding: t -*-
 
-;; Copyright (C) 2025
+;; Copyright (C) 2026 Alexandre Avanian
 
-;; Author: aavanian
+;; Author: Alexandre Avanian <https://github.com/aavanian>
+;; Homepage: https://github.com/cooklang/cook-mode
 ;; Keywords: cooking cooklang tree-sitter
 ;; Version: 0.2.0
 ;; Package-Requires: ((emacs "29.2"))
@@ -103,6 +104,9 @@
 (defvar-local cook-ts-mode--yaml-query nil
   "Compiled query for locating frontmatter_content nodes.")
 
+(defvar-local cook-ts-mode--imenu-query nil
+  "Compiled query for locating section_name nodes.")
+
 (defun cook-ts-mode--update-yaml-ranges (&optional _beg _end _len)
   "Re-derive YAML parser ranges from the cooklang tree."
   (when (and cook-ts-mode--cooklang-parser
@@ -125,8 +129,7 @@
 Returns sections as an alist under the \\\"Sections\\\" key."
   (when cook-ts-mode--cooklang-parser
     (let* ((root (treesit-parser-root-node cook-ts-mode--cooklang-parser))
-           (query (treesit-query-compile 'cooklang '((section_name) @name)))
-           (captures (treesit-query-capture root query))
+           (captures (treesit-query-capture root cook-ts-mode--imenu-query))
            sections)
       (dolist (pair captures)
         (let* ((node (cdr pair))
@@ -171,7 +174,7 @@ Uses tree-sitter parsing, so ingredients inside comments are ignored."
 
 ;;; Ingredient display ==========================================================
 
-(defun cook-show-ingredients ()
+(defun cook-ts-mode-show-ingredients ()
   "Show ingredients from the current buffer in the echo area."
   (interactive)
   (let* ((ingredients (cook-ts-mode-ingredients))
@@ -180,7 +183,7 @@ Uses tree-sitter parsing, so ingredients inside comments are ignored."
                                  (pcase i
                                    (`(,name ,qty ,unit)
                                     (if unit
-                                        (format "%s\t%s\t%s\n" name qty unit)
+                                        (format "%s\t%s\t%s\n" name (or qty "") unit)
                                       (format "%s\t%s\n" name (or qty ""))))))
                                ingredients))))
     (if (string-empty-p table)
@@ -202,7 +205,7 @@ Uses tree-sitter parsing, so ingredients inside comments are ignored."
   (let* ((raw (treesit-node-text node t))
          ;; Strip [- and -] delimiters added by the external scanner
          (inner (replace-regexp-in-string
-                 (rx bos (? "[" "-" (* space)) (group (* nonl)) (* space) (? "-" "]") eos)
+                 (rx bos (? "[" "-" (* space)) (group (*? nonl)) (* space) (? "-" "]") eos)
                  "\\1"
                  (string-trim raw))))
     (when (cook-ts-mode--image-path-p inner)
@@ -251,6 +254,8 @@ Uses tree-sitter parsing, so ingredients inside comments are ignored."
   ;; Compile frontmatter query now that the parser exists
   (setq-local cook-ts-mode--yaml-query
               (treesit-query-compile 'cooklang '((frontmatter_content) @content)))
+  (setq-local cook-ts-mode--imenu-query
+              (treesit-query-compile 'cooklang '((section_name) @name)))
 
   (setq-local treesit-font-lock-settings cook-ts-mode--font-lock-rules)
   (setq-local treesit-font-lock-feature-list
@@ -296,19 +301,24 @@ Uses tree-sitter parsing, so ingredients inside comments are ignored."
 
   (treesit-major-mode-setup))
 
+(defvar cook-ts-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c i") #'cook-ts-mode-show-ingredients)
+    (define-key map (kbd "C-c C-i") #'cook-ts-mode-toggle-show-images)
+    map)
+  "Keymap for Cook TS major mode.")
+
 ;;;###autoload
-(define-derived-mode cook-ts-mode text-mode "Cook"
+(define-derived-mode cook-ts-mode text-mode "Cook TS"
   "Major mode for cooklang recipe files, powered by tree-sitter."
   :group 'cook-ts
 
   (unless (treesit-ready-p 'cooklang)
     (error "Tree-sitter grammar for cooklang is not available"))
 
-  (cook-ts-mode--setup)
+  (cook-ts-mode--setup))
 
-  (local-set-key (kbd "C-c i") #'cook-show-ingredients)
-  (local-set-key (kbd "C-c C-i") #'cook-ts-mode-toggle-show-images))
-
+;;;###autoload
 (when (treesit-ready-p 'cooklang)
   ;; Upgrade cook-mode → cook-ts-mode automatically when both are loaded.
   (add-to-list 'major-mode-remap-alist '(cook-mode . cook-ts-mode))

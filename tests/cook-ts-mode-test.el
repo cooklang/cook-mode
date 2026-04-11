@@ -94,7 +94,28 @@
       (should (assoc "Prep" sections))
       (should (assoc "Cook" sections)))))
 
+;;; Ingredient display tests ===================================================
+
+(ert-deftest cook-ts-mode-test-show-ingredients-nil-qty ()
+  "show-ingredients displays empty string for nil quantity, not the string \"nil\"."
+  (let (output)
+    (cl-letf (((symbol-function 'cook-ts-mode-ingredients)
+               (lambda () '(("flour" nil "cups"))))
+              ((symbol-function 'message)
+               (lambda (fmt &rest args) (setq output (apply #'format fmt args)))))
+      (cook-ts-mode-show-ingredients))
+    (should (string-match-p "flour" output))
+    (should (string-match-p "cups" output))
+    (should-not (string-match-p "nil" output))))
+
 ;;; Image overlay tests ========================================================
+
+(ert-deftest cook-ts-mode-test-block-comment-image-path-strips-delimiters ()
+  "block-comment-image-path correctly strips [- -] delimiters."
+  (cl-letf (((symbol-function 'treesit-node-text)
+             (lambda (_node _no-prop) "[- brigadeiro.jpg -]")))
+    (should (equal (cook-ts-mode--block-comment-image-path nil)
+                   "brigadeiro.jpg"))))
 
 (ert-deftest cook-ts-mode-test-image-overlay-no-file ()
   "No overlay is created when the referenced image file does not exist."
