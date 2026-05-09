@@ -215,6 +215,7 @@ Each element is of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil.
 (modify-syntax-entry ?\n "> b" cook-mode-syntax-table)
 
 (keymap-set cook-mode-map "C-c C-i" #'cook-show-ingredients)
+(keymap-set cook-mode-map "C-c C-t" #'cook-mode-toggle-show-images)
 
 (defun cook-mode-toggle-show-images ()
   "Toggle whether to show images from comments."
