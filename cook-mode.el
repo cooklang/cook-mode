@@ -47,18 +47,29 @@
 
 ;;; Regular Expressions ========================================================
 
+(defconst cook-cookware-re (rx (group-n 1 "#")
+                               (or (seq (group-n 2 (zero-or-more (not ?{)))
+
+                                        ?{
+                                        (group-n 3 (zero-or-more (not ?})))
+                                        ?})
+                                   (group-n 2 (zero-or-more (any alpha))))))
+
 ;; Ingredient extraction
 (defconst cook-ingredient-re (rx (seq (group-n 1 "@")
                                       (or (seq (group-n 2 (zero-or-more (any ?\n ?\s ?- alpha))) ?{
                                                (group-n 3 (zero-or-more (not (any ?% ?}))))
-                                               (? ?% (group-n 4 (zero-or-more (not (any ?}))))) ?})
+                                               (? (group-n 4 ?%)
+                                                  (group-n 5 (zero-or-more (not (any ?})))))
+                                               ?})
                                           (group-n 2 (zero-or-more (any ?\n alpha))))))
   "Regular expression for matching an ingredient.
 
 Group 1: Matches @ marker.
 Group 2: Matches the ingredient.
 Group 3: Matches the quantity if available.
-Gruop 4: Matches the unit if available.")
+Group 4: Matches % marker.
+Group 5: Matches the unit if available.")
 
 ;;; Syntax Highlighting ========================================================
 
@@ -90,13 +101,15 @@ Gruop 4: Matches the unit if available.")
                               ("\\(?1:~\\){\\(?2:[^}]*\\)}" 1 'cook-timer-char-face)
                               ("\\(?1:~\\){\\(?2:[^}]*\\)}" 2 'cook-timer-face)
 
-                              ("\\(?1:#\\)\\(?:\\(?2:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[:alpha:]*\\)\\)" 1 'cook-cookware-char-face)
-                              ("\\(?1:#\\)\\(?:\\(?2:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?2:[:alpha:]*\\)\\)" 2 'cook-cookware-face)
-                              ("\\(?1:#\\)\\(?:\\(?:[[:alpha:]\s-]*\\){\\(?3:[^}]*\\)}\\|\\(?:[:alpha:]*\\)\\)" 3 'cook-cookware-quantity-face)
+                              (,cook-cookware-re 1 'cook-cookware-char-face)
+                              (,cook-cookware-re 2 'cook-cookware-face)
+                              (,cook-cookware-re 3 'cook-cookware-quantity-face nil t)
 
                               (,cook-ingredient-re 1 'cook-ingredient-char-face)
                               (,cook-ingredient-re 2 'cook-ingredient-face)
-                              (,cook-ingredient-re 3 'cook-ingredient-quantity-face))
+                              (,cook-ingredient-re 3 'cook-ingredient-quantity-face)
+                              (,cook-ingredient-re 4 'cook-ingredient-char-face nil t)
+                              (,cook-ingredient-re 5 'cook-ingredient-quantity-face nil t))
   "Font lock for `cook-mode'.")
 
 (defface cook-source-author-keyword-face
@@ -174,7 +187,7 @@ The returned is in the format (INGREDIENT QUANTITY UNITS).  For example,
   (string-match cook-ingredient-re ingredient-str)
   (list (match-string 2 ingredient-str)
         (match-string 3 ingredient-str)
-        (match-string 4 ingredient-str)))
+        (match-string 5 ingredient-str)))
 (defun cook-ingredients-list ()
   "Return the ingredients list for the current buffer.
 
@@ -183,20 +196,23 @@ Each element is of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil.
   (let ((ingredients '()))
     (save-excursion
       (goto-char (point-max))
-      (while (re-search-backward cook-ingredient-re (point-max) t)
+      (while (re-search-backward cook-ingredient-re nil t)
         (push (cook-parse-ingredient (match-string-no-properties 0)) ingredients)))
     ingredients))
 
 (defun cook-show-ingredients ()
   "Show ingredients list."
+  (declare (ftype (function () string)))
   (interactive)
   (let ((ingredients (cook-ingredients-list)))
     (with-temp-buffer
       (dolist (ingredient ingredients)
         (dolist (part ingredient)
-          (insert part ?\t))
-        (delete-char 1)
+          (insert (or part "") ?\t))
+        (delete-char -1)
         (newline))
+      (unless (bobp)
+        (delete-char -1))
       (message "%s" (buffer-string)))))
 
 ;;;###autoload
@@ -224,10 +240,9 @@ Each element is of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil.
   (if cook-mode-show-images
       (font-lock-add-keywords nil
                             '((cook-mode-image-overlay-font-lock (0 'font-lock-keyword-face t))))
-    (progn
-        (mapc #'delete-overlay (overlays-in (point-min) (point-max)))
-        (font-lock-remove-keywords nil
-                                   '((cook-mode-image-overlay-font-lock (0 'font-lock-keyword-face t))))))
+    (mapc #'delete-overlay (overlays-in (point-min) (point-max)))
+    (font-lock-remove-keywords nil
+                               '((cook-mode-image-overlay-font-lock (0 'font-lock-keyword-face t)))))
   (font-lock-flush))
 
 ;; From org-mode
