@@ -23,13 +23,21 @@
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.cook" . cook-mode))
 
+(defgroup cook '()
+  "Emacs mode for cooklang."
+  :group 'languages
+  :prefix "cook-")
 
 (defcustom cook-mode-show-images t
-  "Whether to show images.")
+  "Whether to show images."
+  :group 'cook
+  :type 'boolean)
 
 (defvar image-filename-re "" "Regexp to match image filenames in comments.")
 
-(defcustom cook-image-width 200 "Width for preview images.")
+(defcustom cook-image-width 200 "Width for preview images."
+  :group 'cook
+  :type 'natnum)
 
 (setq image-filename-re (concat  "\\[-\s*\\(?3:'\\|\"\\|\\)\\(?1:.*\\."
                                   (regexp-opt '("png" "PNG" "JPG" "jpeg"
@@ -187,7 +195,9 @@ of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
       (goto-char (point-min))
       (while (and (< (point) (point-max))
                   (re-search-forward cook-ingredient-re (point-max) t))
-        (add-to-list 'ingredients (match-string-no-properties 0) t)))
+        (push (match-string-no-properties 0) ingredients)))
+    (setq ingredients (nreverse ingredients))
+
     (mapcar #'cook-parse-ingredient ingredients)))
 
 (defun cook-show-ingredients ()
@@ -240,8 +250,7 @@ of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
            (font-lock-remove-keywords nil
                                       '((image-overlay-font-lock (0  'font-lock-keyword-face t)))))
          )
-       (setq font-lock-mode-major-mode nil)
-       (font-lock-fontify-buffer)
+       (font-lock-flush)
        (setq cook-mode-show-images (not cook-mode-show-images))
        )
 
@@ -254,17 +263,17 @@ of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil."
 
 (defun image-overlay-font-lock (&optional limit)
   (when (re-search-forward image-filename-re limit t)
-    (setq beg (match-beginning 0)
-          end (match-end 0)
-          imgfile (match-string 1))
-    (when (file-exists-p imgfile)
-      (setq img (create-image (expand-file-name imgfile)
-		    nil nil :width cook-image-width))
-      (setq ov (make-overlay beg end))
-      (overlay-put ov 'display img)
-      (overlay-put ov 'face 'default)
-      (overlay-put ov 'modification-hooks
-                   (list 'cook-mode-remove-overlay)))))
+    (let ((beg (match-beginning 0))
+          (end (match-end 0))
+          (imgfile (match-string 1)))
+      (when (file-exists-p imgfile)
+        (let ((img (create-image (expand-file-name imgfile)
+                                 nil nil :width cook-image-width))
+              (ov (make-overlay beg end)))
+          (overlay-put ov 'display img)
+          (overlay-put ov 'face 'default)
+          (overlay-put ov 'modification-hooks
+                       (list 'cook-mode-remove-overlay)))))))
 
 (provide 'cook-mode)
 ;;; cook-mode.el ends here
