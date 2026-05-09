@@ -1,0 +1,49 @@
+name: Test
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GNU EMacs
+        run:
+          sudo apt install emacs-nox
+
+      # tree-sitter-cli in ubuntu does not have the build subcommand
+      - uses: tree-sitter/setup-action@v2
+        with:
+          install-lib: false
+
+      - name: Install tree-sitter grammars
+        run: |
+          TREE_SITTER_ABI="$(emacs -Q -batch -eval '(princ (number-to-string (treesit-library-abi-version)))')"
+
+          mkdir -p "${HOME}/.emacs.d/tree-sitter"
+
+          for REPO in cooklang/tree-sitter-cooklang tree-sitter-grammars/tree-sitter-yaml; do
+              git clone "https://github.com/${REPO}.git" --depth 1
+
+              BASENAME="$(basename "${REPO}")"
+
+              cd "${BASENAME}"
+              tree-sitter generate --abi="${TREE_SITTER_ABI}"
+              tree-sitter build --output="${HOME}/.emacs.d/tree-sitter/lib${BASENAME}.so"
+              cd ..
+          done
+
+      - name: Compilation
+        run:
+          make
+
+      - name: Run tests
+        run: |
+          make test
