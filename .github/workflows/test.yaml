@@ -15,7 +15,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install GNU EMacs
-        run:
+        run: |
+          sudo apt-get update
           sudo apt install emacs-nox
 
       # tree-sitter-cli in ubuntu does not have the build subcommand
