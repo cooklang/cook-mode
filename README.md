@@ -98,8 +98,8 @@ M-x treesit-install-language-grammar RET cooklang
 
 - Syntax highlighting for all cooklang elements (ingredients, cookware, timers, sections, metadata, notes, comments)
 - YAML frontmatter highlighting (when the `yaml` grammar is also installed)
-- `C-c i` — display ingredient list
-- `C-c C-i` — toggle inline image display for `[- image.png -]` block comments
+- `C-c C-i` — display ingredient list
+- `C-c C-t` — toggle inline image display for `[- image.png -]` block comments
 - `M-;` — insert `-- ` line comment
 - `M-x imenu` — navigate to sections
 

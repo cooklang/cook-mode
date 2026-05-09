@@ -17,7 +17,7 @@
 (ert-deftest cook-ts-mode-test-yaml-injection ()
   "YAML keys in frontmatter get font-lock-keyword-face."
   (skip-unless (treesit-ready-p 'cooklang))
-  (skip-unless (treesit-language-available-p 'yaml))
+  (skip-unless (treesit-ready-p 'yaml))
   (ert-test-erts-file (ert-resource-file "yaml-injection.erts")))
 
 ;;; Ingredient extraction tests ================================================

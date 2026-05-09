@@ -303,8 +303,8 @@ Uses tree-sitter parsing, so ingredients inside comments are ignored."
 
 (defvar cook-ts-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c i") #'cook-ts-mode-show-ingredients)
-    (define-key map (kbd "C-c C-i") #'cook-ts-mode-toggle-show-images)
+    (define-key map (kbd "C-c C-i") #'cook-ts-mode-show-ingredients)
+    (define-key map (kbd "C-c C-t") #'cook-ts-mode-toggle-show-images)
     map)
   "Keymap for Cook TS major mode.")
 
