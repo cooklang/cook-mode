@@ -17,6 +17,8 @@
 (require 'treesit)
 (require 'rx)
 
+(autoload 'cook-yaml-narrow "cook-yaml-narrow" nil t)
+
 ;;; Font-lock rules ============================================================
 
 (defvar cook-ts-mode--font-lock-rules
@@ -305,6 +307,7 @@ Uses tree-sitter parsing, so ingredients inside comments are ignored."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-i") #'cook-ts-mode-show-ingredients)
     (define-key map (kbd "C-c C-t") #'cook-ts-mode-toggle-show-images)
+    (define-key map (kbd "C-c C-n") #'cook-yaml-narrow)
     map)
   "Keymap for Cook TS major mode.")
 

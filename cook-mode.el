@@ -22,6 +22,8 @@
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.cook" . cook-mode))
 
+(autoload 'cook-yaml-narrow "cook-yaml-narrow" nil t)
+
 (defgroup cook '()
   "Emacs mode for cooklang."
   :group 'languages
@@ -232,6 +234,7 @@ Each element is of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil.
 
 (keymap-set cook-mode-map "C-c C-i" #'cook-show-ingredients)
 (keymap-set cook-mode-map "C-c C-t" #'cook-mode-toggle-show-images)
+(keymap-set cook-mode-map "C-c C-n" #'cook-yaml-narrow)
 
 (defun cook-mode-toggle-show-images ()
   "Toggle whether to show images from comments."
