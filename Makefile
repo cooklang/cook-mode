@@ -2,7 +2,7 @@
 
 EMACS = emacs
 EMACSFLAGS = -Q -L . -L tests
-ELCS = cook-mode.elc cook-ts-mode.elc tests/cook-mode-test.elc tests/cook-ts-mode-test.elc
+ELCS = cook-mode.elc cook-ts-mode.elc cook-yaml-narrow.elc tests/cook-mode-test.elc tests/cook-ts-mode-test.elc
 
 all: ${ELCS}
 clean:
@@ -10,6 +10,8 @@ clean:
 test: all
 	${EMACS} ${EMACSFLAGS} -batch -l ert -l cook-mode-test -f ert-run-tests-batch-and-exit
 	${EMACS} ${EMACSFLAGS} -batch -l ert -l cook-ts-mode-test -f ert-run-tests-batch-and-exit
+
+cook-yaml-narrow.elc: cook-mode.elc cook-ts-mode.elc
 tests/cook-mode-test.elc: cook-mode.elc
 tests/cook-ts-mode-test.elc: cook-ts-mode.elc
 

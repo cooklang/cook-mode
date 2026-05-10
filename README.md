@@ -4,11 +4,12 @@ Emacs support for [cooklang](https://cooklang.org/) recipe files (`.cook`).
 
 The package provides two modes — both are included, and you choose which to use:
 
-| | `cook-mode` | `cook-ts-mode` |
-|---|---|---|
-| **Requires** | Any Emacs | Emacs 29.2+ |
-| **Parsing** | Regex font-lock | Tree-sitter |
-| **Extras** | — | Imenu, image overlays, YAML frontmatter |
+|              | `cook-mode`     | `cook-ts-mode`                          |
+|--------------+-----------------+-----------------------------------------|
+| **Requires** | Any Emacs       | Emacs 29.2+                             |
+| **Parsing**  | Regex font-lock | Tree-sitter                             |
+| **Extras**   |                 | Imenu, image overlays, YAML frontmatter |
+
 
 <p align="center"><img src="example.png" width="80%" title="example of syntax highlight" /></a></p>
 <p align="center">Example of syntax highlight</p>
@@ -100,6 +101,7 @@ M-x treesit-install-language-grammar RET cooklang
 - YAML frontmatter highlighting (when the `yaml` grammar is also installed)
 - `C-c C-i` — display ingredient list
 - `C-c C-t` — toggle inline image display for `[- image.png -]` block comments
+- `C-c C-n` — narrow to yaml metadata
 - `M-;` — insert `-- ` line comment
 - `M-x imenu` — navigate to sections
 
