@@ -101,6 +101,14 @@ cook for ~{20%minutes}
 [-       ^ cook-timer-char-face -]
 [-         ^ cook-timer-face -]")
 
+(ert-font-lock-deftest cook-mode-test-font-lock-timer-named
+  cook-mode
+  "
+Boil for ~eggs{20%minutes}
+[-       ^ cook-timer-char-face -]
+[-        ^ cook-timer-name-face -]
+[-             ^ cook-timer-face -]")
+
 (ert-font-lock-deftest cook-mode-test-font-lock-cookware-string
   cook-mode
   "
@@ -130,9 +138,35 @@ crack @eggs{4}
 add @flour{125%g}
 [-  ^ cook-ingredient-char-face -]
 [-   ^ cook-ingredient-face -]
-[-         ^ cook-ingredient-quantity-face -]
-[-            ^ cook-ingredient-char-face -]
-[-             ^ cook-ingredient-quantity-face -]")
+[-         ^ cook-ingredient-quantity-face -]")
+
+(ert-font-lock-deftest cook-mode-test-font-lock-ingredient-processed
+  cook-mode
+  "
+add @potatoes{125%g}(peeled and sliced)
+[-  ^ cook-ingredient-char-face -]
+[-   ^ cook-ingredient-face -]
+[-            ^ cook-ingredient-quantity-face -]
+[-                   ^ cook-ingredient-preparation-face -]")
+
+(ert-font-lock-deftest cook-mode-test-font-lock-section
+  cook-mode
+  "
+==== Dough
+[- ^ cook-section-char-face -]
+[-   ^ cook-section-name-face -]")
+
+(ert-font-lock-deftest cook-mode-test-font-lock-section-double-sided
+  "Ensure everything after the equal signs is part of the name.
+
+Parsing the right sided equal signs would be a bit difficult so
+we just pretend it\\='s a part of the name."
+  cook-mode
+  "
+==== Dough =========
+[- ^ cook-section-char-face -]
+[-   ^ cook-section-name-face -]
+[-         ^ cook-section-name-face -]")
 
 (provide 'cook-mode-test)
 
