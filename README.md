@@ -5,7 +5,7 @@ Emacs support for [cooklang](https://cooklang.org/) recipe files (`.cook`).
 The package provides two modes — both are included, and you choose which to use:
 
 |              | `cook-mode`     | `cook-ts-mode`                          |
-|--------------+-----------------+-----------------------------------------|
+|--------------|-----------------|-----------------------------------------|
 | **Requires** | Any Emacs       | Emacs 29.2+                             |
 | **Parsing**  | Regex font-lock | Tree-sitter                             |
 | **Extras**   |                 | Imenu, image overlays, YAML frontmatter |
