@@ -58,20 +58,38 @@
                                    (group-n 2 (zero-or-more (any alpha))))))
 
 ;; Ingredient extraction
-(defconst cook-ingredient-re (rx (seq (group-n 1 "@")
-                                      (or (seq (group-n 2 (zero-or-more (any ?\n ?\s ?- alpha))) ?{
-                                               (group-n 3 (zero-or-more (not (any ?% ?}))))
-                                               (? (group-n 4 ?%)
-                                                  (group-n 5 (zero-or-more (not (any ?})))))
-                                               ?})
-                                          (group-n 2 (zero-or-more (any ?\n alpha))))))
-  "Regular expression for matching an ingredient.
+(defconst cook-ingredient-font-lock-re
+  (rx (group ?@)
+      (group (* (not (any ?{ whitespace))))
+      (? (group (* (not ?{)))
+         ?{
+         (group (* (not ?})))
+         ?}
+         (? ?\(
+            (group (* (not ?\))))
+            ?\))))
+  "Ingredient regex for fast font-locking.
 
 Group 1: Matches @ marker.
-Group 2: Matches the ingredient.
-Group 3: Matches the quantity if available.
-Group 4: Matches % marker.
-Group 5: Matches the unit if available.")
+Group 2 and 3: Matches the ingredient.
+Group 4: Matches the quantity if available.
+Group 5: Matches the preparations if available.")
+
+
+(defconst cook-ingredient-parsing-re (rx (seq "@"
+                                              (or (seq (group-n 1 (zero-or-more (not ?{))) ?{
+                                                       (group-n 2 (zero-or-more (not (any ?% ?}))))
+                                                       (? ?%
+                                                          (group-n 3 (zero-or-more (not (any ?})))))
+                                                       ?})
+                                                  (group-n 1 (zero-or-more (not whitespace))))))
+  "Ingredient regex for fast parsing.")
+
+(defconst cook-timer-re (rx (group ?~)
+                            (group (* (not ?{)))
+                            ?{
+                            (group (* (not ?})))
+                            ?}))
 
 ;;; Syntax Highlighting ========================================================
 
@@ -100,19 +118,25 @@ Group 5: Matches the unit if available.")
                               ("\\(>>\\) \\(servings\\)\\(:\\)\\(.*$\\)" 2 'cook-servings-keyword-face)
                               ("\\(>>\\) \\(servings\\)\\(:\\)\\(.*$\\)" 4 'cook-servings-face)
 
-                              ("\\(?1:~\\){\\(?2:[^}]*\\)}" 1 'cook-timer-char-face)
-                              ("\\(?1:~\\){\\(?2:[^}]*\\)}" 2 'cook-timer-face)
+                              ("^\\(?1:=+\\)\\(?2:[^\n]*\\)$" 1 'cook-section-char-face)
+                              ("^\\(?1:=+\\)\\(?2:[^\n]*\\)$" 2 'cook-section-name-face)
 
+                              ;; timer
+                              (,cook-timer-re 1 'cook-timer-char-face)
+                              (,cook-timer-re 2 'cook-timer-name-face)
+                              (,cook-timer-re 3 'cook-timer-face)
+
+                              ;; cookware
                               (,cook-cookware-re 1 'cook-cookware-char-face)
                               (,cook-cookware-re 2 'cook-cookware-face)
                               (,cook-cookware-re 3 'cook-cookware-quantity-face nil t)
 
-                              (,cook-ingredient-re 1 'cook-ingredient-char-face)
-                              (,cook-ingredient-re 2 'cook-ingredient-face)
-                              (,cook-ingredient-re 3 'cook-ingredient-quantity-face)
-                              (,cook-ingredient-re 4 'cook-ingredient-char-face nil t)
-                              (,cook-ingredient-re 5 'cook-ingredient-quantity-face nil t))
-  "Font lock for `cook-mode'.")
+                              ;; ingredients
+                              (,cook-ingredient-font-lock-re 1 'cook-ingredient-char-face)
+                              (,cook-ingredient-font-lock-re 2 'cook-ingredient-face)
+                              (,cook-ingredient-font-lock-re 3 'cook-ingredient-face nil t)
+                              (,cook-ingredient-font-lock-re 4 'cook-ingredient-quantity-face nil t)
+                              (,cook-ingredient-font-lock-re 5 'cook-ingredient-preparation-face nil t)))
 
 (defface cook-source-author-keyword-face
   '((t :inherit font-lock-keyword-face))
@@ -157,6 +181,10 @@ Group 5: Matches the unit if available.")
   '((t :inherit font-lock-string-face))
   "Face for ingredient quantity.")
 
+(defface cook-ingredient-preparation-face
+  '((t :inherit font-lock-string-face))
+  "Face for ingredient preparation")
+
 (defface cook-cookware-char-face
   '((t :inherit font-lock-string-face))
   "Face for cookware char.")
@@ -173,9 +201,21 @@ Group 5: Matches the unit if available.")
   '((t :inherit font-lock-string-face))
   "Face for timer char.")
 
+(defface cook-timer-name-face
+  '((t :inherit font-lock-string-face))
+  "Face for timer names")
+
 (defface cook-timer-face
   '((t :inherit font-lock-string-face))
   "Face for timer.")
+
+(defface cook-section-char-face
+  '((t :inherit font-lock-string-face))
+  "Face for section char")
+
+(defface cook-section-name-face
+  '((t :inherit font-lock-string-face))
+  "Face for section name")
 
 
 ;;; Ingredient Parsing ===================================================================
@@ -186,10 +226,10 @@ Group 5: Matches the unit if available.")
 The returned is in the format (INGREDIENT QUANTITY UNITS).  For example,
 \"@olive oil{2%tbsp}\" gets parsed to (\"olive oil\" 2 \"tbsp\")."
   (declare (ftype (function (string) list)))
-  (string-match cook-ingredient-re ingredient-str)
-  (list (match-string 2 ingredient-str)
-        (match-string 3 ingredient-str)
-        (match-string 5 ingredient-str)))
+  (string-match cook-ingredient-parsing-re ingredient-str)
+  (list (match-string 1 ingredient-str)
+        (match-string 2 ingredient-str)
+        (match-string 3 ingredient-str)))
 (defun cook-ingredients-list ()
   "Return the ingredients list for the current buffer.
 
@@ -198,7 +238,7 @@ Each element is of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil.
   (let ((ingredients '()))
     (save-excursion
       (goto-char (point-max))
-      (while (re-search-backward cook-ingredient-re nil t)
+      (while (re-search-backward cook-ingredient-parsing-re nil t)
         (push (cook-parse-ingredient (match-string-no-properties 0)) ingredients)))
     ingredients))
 
@@ -223,12 +263,17 @@ Each element is of the form (INGREDIENT QUANTITY UNITS), where UNITS can be nil.
   (setq font-lock-defaults '(cook-mode-font-lock))
   (setq-local comment-start "[-"
               comment-end "-]")
+  (setq-local syntax-propertize-function (syntax-propertize-rules ("^---$" (0 "!"))))
   (when cook-mode-show-images
     (font-lock-add-keywords nil
                             '((cook-mode-image-overlay-font-lock (0  'font-lock-keyword-face t))))))
 
 (modify-syntax-entry ?\[ "(]1nc" cook-mode-syntax-table)
 (modify-syntax-entry ?\] ")[4nc" cook-mode-syntax-table)
+(modify-syntax-entry ?{ "(}" cook-mode-syntax-table)
+(modify-syntax-entry ?} "){" cook-mode-syntax-table)
+(modify-syntax-entry ?\( "()" cook-mode-syntax-table)
+(modify-syntax-entry ?\) ")(" cook-mode-syntax-table)
 (modify-syntax-entry ?- ". 123b" cook-mode-syntax-table)
 (modify-syntax-entry ?\n "> b" cook-mode-syntax-table)
 
